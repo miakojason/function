@@ -30,6 +30,7 @@ function sum2(...$arg) {
     $sum = 0;
 
     foreach ($arg as $num) {
+        if(is_numeric($num))
         $sum += $num;
     }
 
