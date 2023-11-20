@@ -1,57 +1,37 @@
 <?php
-// $rows = all('students',['dept'=>'3'] ,"order by id desc"); // 在這裡指定資料表
-// $rows = find('students', ['dept'=>'1','graduate_at'=>'23']);
-// $rows=all('students',['dept'=>'1','graduate_at'=>'23']);
-// dd($rows); //印出來
-// -----------------------------------
-// 預設值要設空，空值才能跑
-// "select * from `$table` $where";
-// $up=update("students",'3',['dept'=>'16','name'=>'張明珠']);
-// dd($up);
-// insert('dept',['code'=>'112','name'=>'織品系']);
-del('dept','33',['code'=>'110','name'=>'圖書系']);
+date_default_timezone_set("Asia/Taipei");
+$dsn="mysql:host=localhost;charset=utf8;dbname=member";
+$pdo=new PDO($dsn,'root','');
+
+?>
+<?php
 function all($table = null, $where = '', $other = '')
 {
-    $dsn = "mysql:host=localhost;charset=utf8;dbname=school";
-    $pdo = new PDO($dsn, 'root', '');
-    // $a = "select * from `$table`";
+    global$pdo;
     $sql = "select * from `$table`";
-    // 預設值要設空，空值才能跑
     if (isset($table) && !empty($table)) {
-
         if (is_array($where)) {
             if (!empty($where)) {
                 foreach ($where as $col => $value) {
                     $tmp[] = "`$col`='$value'";
                 }
-                // $sql = "select * from `$table` where" . join("&&", $tmp);
-                // $sql = "{$a}}where" . join("&&", $tmp);
                 $sql .= "where" .join("&&", $tmp);
             }
         } else {
             $sql .= "$where";
         }
         $sql .= $other;
-        // $tmp[];
-        // $sql = "select * from `$table`";
-        //  $sql = "$a";
-        // 
-        print_r($sql); //檢查sql查詢有沒有錯誤失敗顯示出來
+        // print_r($sql); 
         $rows = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-        return $rows;                     //PDO::FETCH_ASSOC減少顯示的欄位省流量大小
-        // FETCH_NUM索引值      
-
+        return $rows;                   
     } else {
         echo "錯誤:沒有指定的資料表名稱";
     }
 }
 // -------------------------------------
-// 查詢指定id只取一筆
 function find($table, $id)
 {
-    $dsn = "mysql:host=localhost;charset=utf8;dbname=school";
-    $pdo = new PDO($dsn, 'root', '');
-    // $sql="select * from `$table` where `id` = '$id' ";
+    global$pdo;
     $sql = "select * from `$table` ";
     if (!empty($id)) {
         foreach ($id as $col => $value) {
@@ -63,16 +43,14 @@ function find($table, $id)
     } else {
         echo "錯誤:參數的資料型態必須是數字或陣列";
     }
-    echo 'find=>' . $sql;
+    // echo 'find=>' . $sql;
     $row = $pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
     return $row;
 }
 // -----------------------------
 function update($table, $id, $cols){
-    $dsn = "mysql:host=localhost;charset=utf8;dbname=school";
-    $pdo = new PDO($dsn, 'root', '');
+    global$pdo;
     $sql = "update `$table` set ";
-    
     if (!empty($cols)) {
         foreach ($cols as $col => $value) {
             $tmp[] = "`$col`='$value'";
@@ -92,20 +70,18 @@ function update($table, $id, $cols){
     } else {
         echo "錯誤:參數的資料型態必須是數字或陣列";
     } 
-    echo $sql;
+    // echo $sql;
     return $pdo->exec($sql); //知道影響幾列
 }
 // ---------------------------------
 function insert($table,$values ){
-    $dsn = "mysql:host=localhost;charset=utf8;dbname=school";
-    $pdo = new PDO($dsn, 'root', '');
-
+    global$pdo;
     $sql = "insert into `$table`  ";
     $cols= "(`".join ("`,`",array_keys($values))."`)" ;
     $vals="('".join("','",$values)."')";
     $sql= $sql . $cols ."values".$vals;
 
-    echo $sql;
+    // echo $sql;
     return $pdo->exec($sql);
 }
 // ---------------------------------
@@ -116,16 +92,11 @@ function pdo(){
 }
 // -------------------------
 function del($table, $id, ){
-    // $dsn = "mysql:host=localhost;charset=utf8;dbname=school";
-    // $pdo = new PDO($dsn, 'root', '');
-    // include "pdo.php";
-    $pdo=pdo();
+    global$pdo;
     $sql = "delete from `$table` where  ";
     if (is_array($id)) {
-        // foreach產生,欄,值
         foreach ($id as $col => $value) {
-          // 將上組合的字串放到$tmp的陣列中 。這樣，$tmp 中存儲的是轉換後的每個刪除條件
-            $tmp[] = "`$col`='$value'";//   例如 ["欄位1='值1'", "欄位2='值2'", ...]。
+            $tmp[] = "`$col`='$value'";
         }
         $sql .= join(" && ", $tmp);
     } elseif (is_numeric($id)) {
@@ -133,12 +104,11 @@ function del($table, $id, ){
     } else {
         echo "錯誤:參數的資料型態必須是數字或陣列";
     }
-    echo $sql;
+    // echo $sql;
     return $pdo->exec($sql);
 }
 // ---------------------
-//自定義印出來函式 
-function dd($array) //dd簡單取名direct dump直接印
+function dd($array) 
 {
     echo "<pre>";
     print_r($array);
